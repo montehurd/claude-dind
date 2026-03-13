@@ -32,7 +32,7 @@ docker run -d -t --rm --privileged \
   --name claude \
   -p 6924:8086 \
   -v "$WORK_DIR":/work \
-  -v claude-chromium-profile:/home/claude/.config/chromium \
+  -v claude-dind-chromium-profile:/home/claude/.config/chromium \
   -e CLAUDE_CREDENTIALS="$CLAUDE_CREDENTIALS" \
   "$CLAUDE_IMAGE"
 

@@ -60,7 +60,7 @@ The credentials use your Max/Pro subscription (flat fee, not per-token).
 - Starts a new detached container with:
   - **Port 6924 -> 8086** — maps the host port to the container's noVNC port
   - **Project mount** — your project directory is mounted at `/work` inside the container
-  - **Chromium profile volume** — `claude-chromium-profile` persists the browser profile across runs so the extension doesn't need to re-install each time
+  - **Chromium profile volume** — `claude-dind-chromium-profile` persists the browser profile across runs so the extension doesn't need to re-install each time
   - **Privileged mode** — required for Docker-in-Docker
   - **Credentials** — passed via `CLAUDE_CREDENTIALS` environment variable
 
@@ -116,7 +116,7 @@ The macOS launcher is baked into the image at `/macos-start` so it can be extrac
 
 | Volume | Mount point | Purpose |
 |---|---|---|
-| `claude-chromium-profile` | `/home/claude/.config/chromium` | Persists the Chromium profile so the extension doesn't re-install on every launch |
+| `claude-dind-chromium-profile` | `/home/claude/.config/chromium` | Persists the Chromium profile so the extension doesn't re-install on every launch |
 | (bind mount) | `/work` | Your project directory |
 
 ## Ports
