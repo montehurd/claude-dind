@@ -1,0 +1,52 @@
+#!/bin/bash
+set -e
+
+if [ -z "$1" ]; then
+  echo "Usage: macos-start <work-directory>"
+  exit 1
+fi
+
+WORK_DIR="$(cd "$1" && pwd)"
+CLAUDE_IMAGE="${CLAUDE_IMAGE:-ghcr.io/montehurd/claude-dind:latest}"
+
+# Reads credentials from macOS Keychain (uses Max/Pro subscription, flat fee, not per-token)
+if [ -z "$CLAUDE_CREDENTIALS" ]; then
+  CLAUDE_CREDENTIALS=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null || true)
+
+  if [ -z "$CLAUDE_CREDENTIALS" ]; then
+    echo "No credentials in Keychain. A browser will open — authorize to get an OAuth token."
+    echo ""
+    unset CLAUDECODE && claude setup-token
+    CLAUDE_CREDENTIALS=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null || true)
+  fi
+
+  if [ -z "$CLAUDE_CREDENTIALS" ]; then
+    echo "Failed to get credentials."
+    exit 1
+  fi
+fi
+
+docker rm -f claude 2>/dev/null || true
+
+docker run -d -t --rm --privileged \
+  --name claude \
+  -p 6924:8086 \
+  -v "$WORK_DIR":/work \
+  -v claude-chromium-profile:/home/claude/.config/chromium \
+  -e CLAUDE_CREDENTIALS="$CLAUDE_CREDENTIALS" \
+  "$CLAUDE_IMAGE"
+
+echo "Waiting for noVNC..."
+until curl -s -o /dev/null -w '%{http_code}' http://localhost:6924/vnc.html | grep -q 200; do
+  sleep 1
+done
+sleep 1
+
+# Disable terminal focus reporting to prevent ^[[O escape sequences when focus shifts
+printf '\e[?1004l'
+
+open "http://localhost:6924/vnc.html?autoconnect=true"
+
+echo "noVNC ready. Shelling into claude container..."
+docker exec -it -u claude claude claude-shell </dev/tty || true
+docker stop claude

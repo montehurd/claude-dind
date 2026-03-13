@@ -1,0 +1,9 @@
+{
+  "name": "com.anthropic.claude_code_browser_extension",
+  "description": "Claude Code Browser Extension Native Host",
+  "path": "/home/claude/.claude/chrome/chrome-native-host",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://fcoeoabgfenejglbffodgkkbkcdhcgfn/"
+  ]
+}

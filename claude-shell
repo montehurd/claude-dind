@@ -1,0 +1,5 @@
+#!/bin/bash
+printf '\033]0;Claude Container\007'
+read -s -t 0.5 -n 256 2>/dev/null
+read -erp "$ " -i "claude --chrome --dangerously-skip-permissions" cmd && eval "$cmd"
+exec bash
